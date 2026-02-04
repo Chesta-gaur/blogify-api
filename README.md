@@ -39,13 +39,14 @@ schema versioning, clean architecture, and API response validation.
 
 git clone
 ```bash
-
+https://github.com/Chesta-gaur/blogify-api.git
 ```
 ### 2. Create virtual environment
 
 ```bash
 python -m venv .venv
-
+```
+```bash
 .venv\scripts\activate
 ```
 

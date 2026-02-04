@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.models.blog_post import BlogPost
 from app.models.comment import Comment
-from app.schemas import BlogPostCreate, BlogPostResponse, CommentCreate
+from app.schemas import BlogPostCreate, BlogPostUpdate, BlogPostResponse, CommentCreate, BlogPostListResponse
 
 router = APIRouter(prefix="/blogs", tags=["Blogs"])
 
@@ -15,9 +15,19 @@ def home():
     }
 
 
-@router.get("/all", response_model=List[BlogPostResponse])
-def get_all_blog_posts(db: Session = Depends(get_db)):
-    posts = db.query(BlogPost)
+@router.get("", response_model=List[BlogPostListResponse])
+def list_blogs(
+    limit: int = 10,
+    offset: int = 0,
+    db: Session = Depends(get_db)
+):
+    posts = (
+        db.query(BlogPost)
+        .order_by((BlogPost.created_at))
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
 
     return posts
 
@@ -35,7 +45,7 @@ def get_blog_post(post_id : int, db : Session = Depends(get_db)):
     return post
 
 
-@router.post("/",status_code=201, response_model=BlogPostResponse)
+@router.post("",status_code=201, response_model=BlogPostResponse)
 def create_blog_post(payload : BlogPostCreate, db: Session = Depends(get_db)):
     post = BlogPost(**payload.model_dump())
 
@@ -66,6 +76,29 @@ def add_comment(post_id : int, payload : CommentCreate, db : Session = Depends(g
     }
 
 
+@router.patch("/{post_id}", response_model=BlogPostResponse)
+def update_blog_post(
+        post_id: int,
+        payload: BlogPostUpdate,
+        db: Session = Depends(get_db)
+    ):
+
+    post = db.get(BlogPost, post_id)
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    update_data = payload.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(post, field, value)
+
+    db.commit()
+    db.refresh(post)
+
+    return post
+
+
 @router.delete("/{post_id}", status_code=204)
 def delete_blog_post(post_id : int, db : Session = Depends(get_db)):
     post = db.get(BlogPost, post_id)
@@ -79,4 +112,5 @@ def delete_blog_post(post_id : int, db : Session = Depends(get_db)):
     db.delete(post)
     db.commit()
 
-    return {"message": "Post deleted"}
+    return {"message": "Post deleted successfully"}
+

@@ -24,12 +24,17 @@ schema versioning, clean architecture, and API response validation.
 - Create blog posts
 - Add comments to blog posts (One-to-Many relationship)
 - Fetch a single blog with nested comments
+- List all blogs with pagination (`limit`, `offset`)
+- Order blog listings by creation date (latest first)
+- Partially update blog posts using PATCH
+- Edit comments using PATCH
 - Database schema versioning using Alembic
-- Clean separation of:
-  - Models
-  - Schemas
-  - Routes
-  - Dependencies
+- Clean separation of concerns:
+  - Models (database layer)
+  - Schemas (request/response contracts)
+  - Routes (API layer)
+  - Dependencies (DB session management)
+- Fully tested using FastAPI’s interactive Swagger UI
 
 ---
 
@@ -77,16 +82,17 @@ Server will be available at: http://127.0.0.1:8000
 
 ## Key Learning Outcomes
 
-- Implemented relational database models using SQLAlchemy
-- Used Alembic for schema versioning and migrations
-- Designed clean API contracts with Pydantic response models
-- Understood why relationships belong in the database layer
-- Built a scalable FastAPI project structure
+- Implemented relational database models using SQLAlchemy ORM
+- Designed one-to-many relationships and enforced them at the database level
+- Used Alembic for database schema versioning and migrations
+- Built paginated and ordered list endpoints for scalable data access
+- Designed separate schemas for create, update, list, and detail responses
+- Implemented safe partial updates using PATCH and `exclude_unset`
+- Understood REST design principles for collection vs single-resource endpoints
+- Built a scalable and maintainable FastAPI project structure
 
 ## Future Enhancements
 
-- List all blogs with pagination
-- Update and delete comments
 - Authentication and authorization
 - Soft deletes and audit fields
 
